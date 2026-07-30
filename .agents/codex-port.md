@@ -29,8 +29,11 @@ This branch owns these explicit deltas:
   never guessed into implementation or tests, while deprecated and superseded
   ADRs remain history.
 
-The `$implement` skill tracks upstream behavior. Its only branch adaptation is
-Codex `$skill-name` invocation syntax.
+The `$implement` skill also owns the Codex review-checkpoint contract: pin the
+starting commit, build and validate, create a review commit, pass the pinned SHA
+and scope source to `$code-review`, then fold actionable findings into the
+reviewed commit. This keeps the committed-range reviewer and implementation
+sequence compatible.
 
 Do not introduce an unlisted product-behavior delta without documenting it here.
 
