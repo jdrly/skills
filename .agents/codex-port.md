@@ -27,12 +27,11 @@ This branch owns these explicit deltas:
   effects when subagents share a workspace;
 - the accepted-ADR authority model: proposed or explicitly open contracts are
   never guessed into implementation or tests, while deprecated and superseded
-  ADRs remain history;
-- `$implement` thread-status titles;
-- the `$implement` reuse map imported from the local Codex version.
+  ADRs remain history.
 
-The reuse map remains a separate design decision. Do not expand, simplify, or
-remove it while syncing upstream changes; evaluate it in its own change.
+The `$implement` skill tracks upstream behavior. Its only branch adaptation is
+Codex `$skill-name` invocation syntax.
+
 Do not introduce an unlisted product-behavior delta without documenting it here.
 
 ## Source of truth
