@@ -21,7 +21,8 @@ This is a prompt-driven skill, not a deterministic script. Explore, present what
 Look at the current repo to understand its starting state. Read whatever exists; don't assume:
 
 - `git remote -v` and `.git/config` — is this a GitHub repo? Which one?
-- `AGENTS.md` and `CLAUDE.md` at the repo root — does either exist? Is there already an `## Agent skills` section in either?
+- `AGENTS.override.md`, `AGENTS.md`, and `CLAUDE.md` at the repo root — which are non-empty, and is there already an `## Agent skills` section?
+- Codex's effective project instructions — use `codex debug prompt-input` from the repo when available to see which file is actually loaded. This accounts for `$CODEX_HOME`, active profiles, and project/runtime configuration; do not infer effective fallback behavior from a hardcoded `~/.codex/config.toml` path.
 - `CONTEXT.md` and `CONTEXT-MAP.md` at the repo root
 - `docs/adr/` and any `src/*/docs/adr/` directories
 - `docs/agents/` — does this skill's prior output already exist?
@@ -37,7 +38,7 @@ Lead each section with the recommended answer so the user can accept it in a wor
 
 **Section A — Issue tracker.**
 
-> Explainer: The "issue tracker" is where issues live for this repo. Skills like `to-tickets`, `triage`, `to-spec`, and `qa` read from and write to it — they need to know whether to call `gh issue create`, write a markdown file under `.scratch/`, or follow some other workflow you describe. Pick the place you actually track work for this repo.
+> Explainer: The "issue tracker" is where issues live for this repo. Skills like `$to-tickets`, `$triage`, `$to-spec`, and `$wayfinder` read from and write to it — they need to know whether to call `gh issue create`, write a markdown file under `.scratch/`, or follow some other workflow you describe. Pick the place you actually track work for this repo.
 
 Default posture: these skills were designed for GitHub. If a `git remote` points at GitHub, propose that. If a `git remote` points at GitLab (`gitlab.com` or a self-hosted host), propose GitLab. Otherwise (or if the user prefers), offer:
 
@@ -64,22 +65,26 @@ Offer **multi-context** — a root `CONTEXT-MAP.md` pointing to per-context `CON
 
 Show the user a draft of:
 
-- The `## Agent skills` block to add to whichever of `CLAUDE.md` / `AGENTS.md` is being edited (see step 4 for selection rules)
+- The `## Agent skills` block to add to the selected effective Codex instruction file, plus an optional `CLAUDE.md` mirror only when the user explicitly wants dual-agent support (see step 4)
 - The contents of `docs/agents/issue-tracker.md`, `docs/agents/domain.md`, and `docs/agents/triage-labels.md` (the last only when `triage` is installed)
 
 Let them edit before writing.
 
 ### 4. Write
 
-**Pick the file to edit:**
+**Pick the file to edit for Codex:**
 
-- If `CLAUDE.md` exists, edit it.
-- Else if `AGENTS.md` exists, edit it.
-- If neither exists, ask the user which one to create — don't pick for them.
+- If a non-empty `AGENTS.override.md` exists, edit it because it shadows `AGENTS.md` in that directory. Explain the shadowing; update `AGENTS.md` too only if the user explicitly wants both kept in sync.
+- Else if a non-empty `AGENTS.md` exists, edit it.
+- Else if only `CLAUDE.md` exists and the effective prompt confirms Codex loads it as a configured fallback, ask whether to edit that working fallback or create the Codex-native `AGENTS.md`. Recommend `AGENTS.md`, but respect the user's choice.
+- Else if only `CLAUDE.md` exists and Codex does not load it, explain that it is not current Codex guidance and ask before creating `AGENTS.md`.
+- If none exists, ask before creating `AGENTS.md`.
 
-Never create `AGENTS.md` when `CLAUDE.md` already exists (or vice versa) — always edit the one that's already there.
+If `codex debug prompt-input` is unavailable, report that limitation. Still prefer a non-empty `AGENTS.override.md` or `AGENTS.md`; when only `CLAUDE.md` exists, do not assume Codex reads it — ask before creating `AGENTS.md` or editing the unverified fallback.
 
-If an `## Agent skills` block already exists in the chosen file, update its contents in-place rather than appending a duplicate. Don't overwrite user edits to the surrounding sections.
+If the user wants both Codex and Claude Code support, optionally mirror the same `## Agent skills` block into `CLAUDE.md`. Do not edit two instruction files without explicit confirmation.
+
+Prefer `AGENTS.override.md` or `AGENTS.md` over a fallback for Codex. If an `## Agent skills` block already exists in a selected file, update its contents in place rather than appending a duplicate. Preserve user edits in surrounding sections.
 
 The block:
 

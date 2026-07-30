@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes — Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/PRD asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".
+description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes — Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/PRD asked for?). Uses parallel subagents when available, with a declared sequential fallback, and reports both axes side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".
 ---
 
 Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
@@ -8,9 +8,9 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 - **Standards** — does the code conform to this repo's documented coding standards?
 - **Spec** — does the code faithfully implement the originating issue / PRD / spec?
 
-Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
+The skill first attempts **parallel clean-context subagents** so the axes do not pollute each other's context, then aggregates their findings. When the runtime cannot provide them, it declares a non-isolated sequential fallback.
 
-The issue tracker should have been provided to you — run `/setup-matt-pocock-skills` if `docs/agents/issue-tracker.md` is missing.
+The issue tracker should have been provided to you — run `$setup-matt-pocock-skills` if `docs/agents/issue-tracker.md` is missing.
 
 ## Process
 
@@ -22,25 +22,27 @@ Capture the diff command once: `git diff <fixed-point>...HEAD` (three-dot, so th
 
 Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here — not inside two parallel sub-agents.
 
-### 2. Identify the spec source
+### 2. Identify the spec sources
 
-Look for the originating spec, in this order:
+Look for the originating scope source, in this order:
 
 1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.) — fetch via the workflow in `docs/agents/issue-tracker.md`.
 2. A path the user passed as an argument.
 3. A PRD/spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
-4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
+4. If nothing is found, ask the user where the scope is. If they say there isn't one, continue with repository-mandated domain sources when available; otherwise the **Spec** sub-agent will skip and report "no spec available".
+
+Also follow the repository's agent and domain-doc guidance. Collect the domain glossary for vocabulary, relevant accepted ADRs for target behavior, and linked module specifications for detail. Treat superseded and deprecated ADRs as history, proposed ADRs as non-authoritative, and explicitly open or deferred contracts as unresolved. The issue defines scope; accepted ADRs constrain the valid implementation. Report conflicts instead of silently choosing one source.
 
 ### 3. Identify the standards sources
 
-Anything in the repo that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
+Anything in the repo that documents how code should be written, such as `AGENTS.md`, `.ai/guidelines/`, `docs/project_guidelines/`, `CODING_STANDARDS.md`, or `CONTRIBUTING.md`.
 
 On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below — a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
 
 - **The repo overrides.** A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
 - **Always a judgement call.** Each smell is a labelled heuristic ("possible Feature Envy"), never a hard violation — and, like any standard here, skip anything tooling already enforces.
 
-Each smell reads *what it is* → *how to fix*; match it against the diff:
+Each smell reads _what it is_ → _how to fix_; match it against the diff:
 
 - **Mysterious Name** — a function, variable, or type whose name doesn't reveal what it does or holds. → rename it; if no honest name comes, the design's murky.
 - **Duplicated Code** — the same logic shape appears in more than one hunk or file in the change. → extract the shared shape, call it from both.
@@ -57,7 +59,7 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 ### 4. Spawn both sub-agents in parallel
 
-Send a single message with two `Agent` tool calls. Use the `general-purpose` subagent for both.
+First attempt to spawn two independent clean-context subagents in parallel, one per review axis. Give each one bounded leaf-review brief and wait for both results before aggregating. Keep `$code-review` and orchestration instructions out of the worker briefs, and omit platform-specific agent type, model, reasoning-effort, and full-history-fork requests. If capacity is temporarily occupied by other workers, wait for a slot and retry. A sequential fallback is permitted only when no collaboration/subagent capability is exposed, nesting is denied, or capacity remains unavailable after active workers finish; run the axes as separate non-isolated passes and state why fallback was used.
 
 **Standards sub-agent prompt** — include:
 
@@ -68,8 +70,8 @@ Send a single message with two `Agent` tool calls. Use the `general-purpose` sub
 **Spec sub-agent prompt** — include:
 
 - The diff command and commit list.
-- The path or fetched contents of the spec.
-- The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
+- The paths or fetched contents of the scope issue/spec and relevant domain sources, including their authority and ADR status.
+- The brief: "Report: (a) requirements the scope and accepted domain sources asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong; and (d) any guessed open contract or conflict between the scope and an accepted ADR. Quote the source line for each finding. Under 400 words."
 
 If the spec is missing, skip the Spec sub-agent and note this in the final report.
 

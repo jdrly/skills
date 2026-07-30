@@ -18,49 +18,49 @@ How a skill is reached — and the two loads you pay for the choice.
 
 ### Model-Invoked
 
-A skill that keeps its **description** field, so the agent can see it and fire it autonomously — and the human can still type its name, so model-invocation always _includes_ user reach. There is no model-only state: a description only ever _adds_ agent discovery, never removes the human's. Pays a permanent **context load** on every turn in exchange for that discoverability. Reachable by other skills, because the description that makes it agent-discoverable makes it invocable. A model-invoked skill whose content is all **reference** is also one home for shared reference: another skill can invoke it, so reference needed by several skills lives in one place. Pick model-invocation only when the agent must reach the skill on its own; if it never fires except by hand, drop the description and pay no context load.
+A skill eligible for automatic selection from an ordinary prompt. In Codex it keeps the required **description** and has `policy.allow_implicit_invocation: true` in `agents/openai.yaml`, or relies on the default when that policy is omitted. Its description should carry the trigger language that makes automatic selection reliable. The human can also invoke it explicitly as `$skill-name`.
 
 _Avoid_: ability, tool, capability
 
 ### User-Invoked
 
-A skill with its **description** stripped — invisible to the agent and reachable only by the human typing its name (user-_only_, where **model-invoked** is user-_and-agent_). Trades agent-discoverability for zero **context load**. Because it has no description, nothing but the human can reach it: no other skill can fire it.
+An explicit-only skill. In Codex it keeps the required `name` and **description**, sets `policy.allow_implicit_invocation: false` in `agents/openai.yaml`, and is invoked as `$skill-name`. It is not automatically selected from ordinary prompts. An active workflow can still direct the agent to load and follow it by name because the policy controls automatic prompt matching, not orchestration.
 
 _Avoid_: procedure, workflow, command
 
 ### Description
 
-The skill's machine-readable trigger, and the one **context pointer** a **model-invoked** skill is forced to keep loaded at all times. Its mere presence _is_ the invocation axis: keep it and the skill is model-invoked (and reachable by other skills); delete it and the skill is **user-invoked**, reachable only by the human. The source of a model-invoked skill's **context load**.
+The required machine-readable summary in `SKILL.md` frontmatter. For a **model-invoked** skill it is also the automatic-selection trigger, so it should name the situations that should load the skill. For a **user-invoked** skill it remains a concise catalog summary; `agents/openai.yaml`, not the field's presence, makes the skill explicit-only.
 
 _Avoid_: frontmatter, summary
 
 ### Context Pointer
 
-A reference held in the agent's context that names some out-of-context material and encodes the condition for reaching it. The **description** is the top-level context pointer (context window → skill); pointers to disclosed files are the same object one level down. Its wording, not the target, decides _when_ the agent reaches — and _how reliably_. A must-have target behind a weakly worded pointer is a variance bug: fix the wording first, and inline the material only if sharpening fails.
+A reference held in the agent's context that names some out-of-context material and encodes the condition for reaching it. A model-invoked **description** is the top-level context pointer (context window → skill); pointers to disclosed files are the same object one level down. Its wording, not the target, decides _when_ the agent reaches — and _how reliably_. A must-have target behind a weakly worded pointer is a variance bug: fix the wording first, and inline the material only if sharpening fails.
 
 _Avoid_: link, reference, import
 
 ### Context Load
 
-The cost a **model-invoked** skill imposes on the agent's context window — its **description**, always loaded, spending both tokens and attention. What **user-invoked** skills escape by having no description, and the brake on splitting into more model-invoked skills.
+The tokens and attention spent making skills discoverable to the model. **Model-invoked** descriptions carry rich trigger language for automatic selection; explicit-only descriptions can stay concise. This cost is a brake on splitting every behavior into another automatically discoverable skill.
 
 _Avoid_: token cost, context bloat
 
 ### Cognitive Load
 
-The cost a **user-invoked** skill imposes on the human — what they must hold in their head: which skills exist and when to reach for each (the human is the index). What **model-invocation** removes by being agent-discoverable, and the brake on splitting into more user-invoked skills. Not a cost to minimise: it is the price of human agency, the reason some skills stay user-invoked. Spend it where human judgement matters; remove it where it does not.
+The cost an explicit-only **user-invoked** skill imposes on the human — what they must remember about which skills exist and when to type `$skill-name`. Automatic model invocation reduces this cost. It is not a cost to minimise: deliberate invocation is useful where human judgement should choose the workflow.
 
 _Avoid_: human index, burden, overhead
 
 ### Router Skill
 
-A **user-invoked** skill whose job is to point at your other user-invoked skills — naming each and when to reach for it — so the human has one skill to remember instead of many. It can only hint, never fire them: user-invoked skills have no **description**, so nothing but the human can reach them. The cure for **cognitive load** when user-invoked skills multiply.
+A **user-invoked** skill whose job is to point at other skills — naming each and when to reach for it — so the human has one explicit entry point to remember. It improves discoverability and may direct the active workflow to load another installed skill by name. The cure for **cognitive load** when explicit-only skills multiply.
 
 _Avoid_: dispatcher, menu, registry, index, router procedure
 
 ### Granularity
 
-How finely you divide skills. Finer division spends one of the two loads: more **model-invoked** skills spend **context load** (more descriptions crowding the window and competing for attention); more **user-invoked** skills spend **cognitive load** (more for the human to remember and reach for). Two cuts guide the division. By **invocation**, split off a model-invoked skill where you have a distinct **leading word** to trigger it — a trigger word you actually use in your prompts. By **sequence**, split a run of **steps** where a step's **post-completion steps** need hiding, since isolating it in its own context clears what follows. Beware the reverse: merging sequences exposes each step's post-completion steps to what follows, inviting premature completion.
+How finely you divide skills. Finer division spends one of the two loads: more **model-invoked** skills spend **context load** on automatic discovery; more **user-invoked** skills spend **cognitive load** because there is more for the human to remember. Two cuts guide the division. By **invocation**, split off a model-invoked skill where a distinct **leading word** should trigger it from ordinary prompts. By **sequence**, isolate a run of **steps** only when it will actually execute in a fresh thread or subagent; loading another skill inline does not clear the current context.
 
 _Avoid_: chunking, modularity
 
@@ -94,7 +94,7 @@ _Avoid_: supporting material, docs, background
 
 ### External Reference
 
-**Reference** that lives outside the skill system — a plain file, no **description**, no **steps**, not invocable — that any skill can point at. The home for shared reference that needn't fire on its own, and the only shared home two **user-invoked** skills can use, since neither has a description and so neither can fire the other.
+**Reference** that lives outside the skill system — a plain file, no **description**, no **steps**, not invocable — that any skill can point at. It is the shared home for material that need not execute as a skill and should remain usable from multiple workflows.
 
 _Avoid_: doc, resource, knowledge base
 
@@ -154,7 +154,7 @@ _Avoid_: horizon, fog of war, lookahead
 
 ### Premature Completion
 
-_Failure mode._ Ending the current step before it is genuinely done, because the agent's attention slips to being done rather than to the work. A between-steps failure: it needs **steps** to occur — a skill with no steps that quits early isn't premature completion but thin **legwork** under an unmet demand. A tug-of-war between two forces: visible **post-completion steps** (the pull forward) and the **completion criterion**'s clarity (the resistance — a sharp, checkable bar holds; a vague one gives way). Fuzziness is the necessary condition: a sharp bound resists the pull no matter how many later steps are visible, so a step that never rushes needs no defending. Two levers hold a step that does, but reach for them in order: **sharpen the bound first** — it is local and cheap. Only when the criterion is irreducibly fuzzy _and_ you actually observe the rush do you **hide the later steps** — and hiding only works across a real context boundary (a user-invoked hand-off or a subagent dispatch; an inline model-invoked call leaves the later steps in context and clears nothing). One cause of thin legwork, but distinct from it: legwork can be thin even when a step runs to full completion.
+_Failure mode._ Ending the current step before it is genuinely done, because the agent's attention slips to being done rather than to the work. A between-steps failure: it needs **steps** to occur — a skill with no steps that quits early isn't premature completion but thin **legwork** under an unmet demand. A tug-of-war between two forces: visible **post-completion steps** (the pull forward) and the **completion criterion**'s clarity (the resistance — a sharp, checkable bar holds; a vague one gives way). Fuzziness is the necessary condition: a sharp bound resists the pull no matter how many later steps are visible, so a step that never rushes needs no defending. Two levers hold a step that does, but reach for them in order: **sharpen the bound first** — it is local and cheap. Only when the criterion is irreducibly fuzzy _and_ you actually observe the rush do you **hide the later steps** — and hiding only works across a real context boundary such as a fresh thread or isolated subagent. Loading another skill inline leaves the later steps in context. One cause of thin legwork, but distinct from it: legwork can be thin even when a step runs to full completion.
 
 _Avoid_: premature closure, the rush, rushing, shortcutting
 

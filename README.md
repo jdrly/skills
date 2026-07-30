@@ -12,6 +12,11 @@
 
 [![skills.sh](https://skills.sh/b/mattpocock/skills)](https://skills.sh/mattpocock/skills)
 
+> **Codex fork:** the `codex` branch keeps Matt Pocock's current skill behavior
+> and official `agents/openai.yaml` metadata, while adapting operational
+> instructions for Codex. Where the upstream docs below show `/skill-name`, use
+> `$skill-name` in Codex. See [the port policy](./.agents/codex-port.md).
+
 My agent skills that I use every day to do real engineering - not vibe coding.
 
 Developing real applications is hard. Approaches like GSD, BMAD, and Spec-Kit try to help by owning the process. But while doing so, they take away your control and make bugs in the process hard to resolve.
