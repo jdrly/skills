@@ -10,9 +10,11 @@ Implement the work described by the supplied spec or tickets on the current bran
 
 ## 1. Pin the scope and review base
 
-Read the full spec or every supplied ticket and identify the acceptance criteria and pre-agreed seams. Capture the current commit with `git rev-parse HEAD`; keep that exact SHA as the review base. Also inspect `git status --short` so pre-existing work remains distinguishable from this implementation.
+Read the full spec or every supplied ticket, including any linked blocking tickets. Identify the acceptance criteria, pre-agreed public seams, and the capability each blocker supplies. Inspect the current code at those seams. Inherit blocker-supplied seams by reusing or extending them; create a seam only when no fitting one exists.
 
-Start implementation when every acceptance criterion is understood and the review-base SHA resolves.
+Capture the current commit with `git rev-parse HEAD`; keep that exact SHA as the review base. Also inspect `git status --short` so pre-existing work remains distinguishable from this implementation.
+
+Start implementation when every acceptance criterion has an identified public seam, every inherited capability is present on the current branch, and the review-base SHA resolves.
 
 ## 2. Build through the seams
 
