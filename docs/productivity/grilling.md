@@ -14,7 +14,15 @@ npx skills update grilling
 
 `grilling` is the relentless interview that stress-tests a plan or design before you build it. It maps the plan as a **design tree** — every decision branches into the decisions that hang off it — and works that tree in **rounds** until you and the agent share the same understanding.
 
-Each round asks the whole **frontier**: every decision whose prerequisites are already settled — the questions it can put to you *now* without guessing at answers it hasn't heard yet. Your answers reshape the tree, pushing the frontier outward, and the next round asks whatever that unblocks. Thirteen questions land in a handful of rounds instead of thirteen. Every question arrives in a fixed shape — numbered and titled behind a `❓` (`❓ **Q1** - **Storage backend**`), then the body, then the agent's recommendation on its own `➡️` line — so a round reads as a scannable list and you can answer it by number rather than by quoting it back; any *fact* the environment can settle it dispatches to a background subagent rather than asking you — and it doesn't block on that research, only the questions downstream of it wait. It won't act on the plan until you confirm the shared understanding has been reached.
+Each round asks the whole **frontier**: every decision whose prerequisites are already settled — the questions it can put to you *now* without guessing at answers it hasn't heard yet. Your answers reshape the tree, pushing the frontier outward, and the next round asks whatever that unblocks. Thirteen questions land in a handful of rounds instead of thirteen. Every question arrives in a fixed shape — numbered and titled behind a `❓` (`❓ **Q1** - **Storage backend**`), then the body, then the agent's recommendation on its own `➡️` line — so a round reads as a scannable list and you can answer it by number rather than by quoting it back; any *fact* the environment can settle it dispatches to a background sub-agent rather than asking you — and it doesn't block on that research, only the questions downstream of it wait. It won't act on the plan until you confirm the shared understanding has been reached.
+
+### Prefer one question at a time?
+
+If the old one-at-a-time rhythm suited you better, keep it. Add a line to your global `CLAUDE.md`:
+
+```
+When grilling, ask one question at a time.
+```
 
 ## When to reach for it
 
@@ -24,7 +32,7 @@ Reach for it when a plan or design still has soft spots and you want them surfac
 
 ## The decision tree
 
-The mental model is a **design tree**: every plan branches into decisions, and decisions depend on each other. The **frontier** is the set of decisions whose prerequisites are all settled — the only questions that can be asked without guessing. `grilling` asks the whole frontier at once, then recomputes it from your answers, so a round is exactly the batch of questions that _don't_ depend on each other. A question whose answer hinges on another still open this round waits for a later round. Asking in frontier-sized rounds keeps the dependency structure intact while sparing you a question-at-a-time drip.
+The mental model is a **design tree**: every plan branches into decisions, and decisions depend on each other. The **frontier** is the set of decisions whose prerequisites are all settled — the only questions that can be asked without guessing. `grilling` asks the whole frontier at once, then recomputes it from your answers, so a round is exactly the batch of questions that *don't* depend on each other. A question whose answer hinges on another still open this round waits for a later round. Asking in frontier-sized rounds keeps the dependency structure intact while sparing you a question-at-a-time drip.
 
 ## Pulled out on purpose
 

@@ -10,7 +10,8 @@ Upstream owns:
 
 - the base skill purpose, flow, and product behavior;
 - skill frontmatter;
-- every official `agents/openai.yaml`;
+- official `agents/openai.yaml` metadata, except a documented compatibility
+  correction where it contradicts the skill's declared invocation behavior;
 - promoted-skill inventory and human-facing docs.
 
 Do not fork the published docs merely to replace harness syntax or orchestration
@@ -41,10 +42,18 @@ and implementation reuses or extends that delivered seam before creating a new
 one. This keeps dependent tracer-bullet tickets from building parallel versions
 of the same behavior.
 
-At the user's request, `$grilling` previews the round-by-round design-tree
-behavior from upstream `release/v1.2`: ask the whole independent frontier, wait,
-then recompute. `$grill-me` and `$grill-with-docs` inherit that single primitive;
-the former standalone `batch-grill-me` copy is removed.
+At the user's request, the complete upstream `release/v1.2` stack at
+`bfdaef8e989a5c81160e74bc5043bd434da49cac` is integrated before it lands on
+`main`. This includes round-by-round grilling, the shareable HTML logic
+prototype, `to-questionnaire` graduation, and the breaking
+`writing-great-skills` → `writing-for-agents` replacement. `$grill-me` and
+`$grill-with-docs` inherit the single `$grilling` primitive; the former
+standalone `batch-grill-me` copy stays removed.
+
+The v1.2 `writing-for-agents` metadata arrived with the old display name and
+implicit invocation disabled, contradicting its new name, frontmatter, and
+changeset. This branch corrects that metadata so Codex discovers the skill as
+model-invoked, and keeps its mechanics reference dual-harness.
 
 Do not introduce an unlisted product-behavior delta without documenting it here.
 
@@ -57,7 +66,8 @@ never merge changes back from it.
 
 When upstream and the Codex layer conflict:
 
-1. Preserve the current upstream behavior and official metadata.
+1. Preserve the current upstream behavior and official metadata, except a
+   compatibility contradiction documented above.
 2. Re-express the documented Codex and local-policy deltas.
 3. Remove duplicated instructions when another skill is the single source of
    truth.
@@ -65,9 +75,11 @@ When upstream and the Codex layer conflict:
 
 ## Sync procedure
 
-1. Fetch `upstream/main` and merge it into `codex`.
+1. Fetch `upstream/main` and merge it into `codex`; merge a release branch only
+   when explicitly requested and record its pinned commit above.
 2. Review upstream changes before resolving conflicts.
-3. Keep upstream `agents/openai.yaml` files unchanged.
+3. Keep upstream `agents/openai.yaml` files unchanged unless a documented Codex
+   compatibility correction is required.
 4. Reconcile only the explicit deltas listed above.
 5. Validate frontmatter, metadata policy, references, conflict markers, and
    whitespace.
