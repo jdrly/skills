@@ -41,6 +41,11 @@ and implementation reuses or extends that delivered seam before creating a new
 one. This keeps dependent tracer-bullet tickets from building parallel versions
 of the same behavior.
 
+At the user's request, `$grilling` previews the round-by-round design-tree
+behavior from upstream `release/v1.2`: ask the whole independent frontier, wait,
+then recompute. `$grill-me` and `$grill-with-docs` inherit that single primitive;
+the former standalone `batch-grill-me` copy is removed.
+
 Do not introduce an unlisted product-behavior delta without documenting it here.
 
 ## Source of truth
