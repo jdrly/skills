@@ -25,22 +25,12 @@ This branch owns these explicit deltas:
 - bounded, clean-context leaf subagents without Claude-specific agent types;
 - parallel dispatch with explicit capacity and sequential fallbacks;
 - parent-owned verification, repository writes, branch changes, and external side
-  effects when subagents share a workspace;
-- the accepted-ADR authority model: proposed or explicitly open contracts are
-  never guessed into implementation or tests, while deprecated and superseded
-  ADRs remain history.
+  effects when subagents share a workspace.
 
-The `$implement` skill also owns the Codex review-checkpoint contract: pin the
-starting commit, build and validate, create a review commit, pass the pinned SHA
-and scope source to `$code-review`, then fold actionable findings into the
-reviewed commit. This keeps the committed-range reviewer and implementation
-sequence compatible.
-
-The `$to-tickets` → `$implement` handoff also owns the inherited-seam contract:
-each blocking edge names the capability or public seam its blocker supplies,
-and implementation reuses or extends that delivered seam before creating a new
-one. This keeps dependent tracer-bullet tickets from building parallel versions
-of the same behavior.
+All planning, ticketing, implementation, review, TDD, and domain-model behavior
+comes from upstream. Codex adaptations change only harness syntax, instruction
+discovery, subagent orchestration, and the minimum metadata needed to expose the
+same invocation policy.
 
 At the user's request, the complete upstream `release/v1.2` stack at
 `bfdaef8e989a5c81160e74bc5043bd434da49cac` is integrated before it lands on
@@ -68,7 +58,7 @@ When upstream and the Codex layer conflict:
 
 1. Preserve the current upstream behavior and official metadata, except a
    compatibility contradiction documented above.
-2. Re-express the documented Codex and local-policy deltas.
+2. Re-express only the documented Codex harness deltas.
 3. Remove duplicated instructions when another skill is the single source of
    truth.
 4. Keep user-visible completion criteria checkable.

@@ -7,7 +7,7 @@ description: Test-driven development. Use when the user wants to build features 
 
 TDD is the red → green loop. This skill is the reference that makes that loop produce tests worth keeping: what a good test is, where tests go, the anti-patterns, and the rules of the loop. Every section applies on every cycle — consult them before and during the loop, not after.
 
-When exploring the codebase, follow its agent and domain-doc guidance. Use `CONTEXT.md` for test and interface vocabulary, and use relevant accepted ADRs plus linked specifications as the behavioral oracle. Superseded or deprecated ADRs are history, proposed ADRs are not test requirements, and explicitly open or deferred contracts must not be frozen into tests by guesswork.
+When exploring the codebase, read `CONTEXT.md` (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching.
 
 ## What a good test is
 
