@@ -35,6 +35,12 @@ and scope source to `$code-review`, then fold actionable findings into the
 reviewed commit. This keeps the committed-range reviewer and implementation
 sequence compatible.
 
+The `$to-tickets` → `$implement` handoff also owns the inherited-seam contract:
+each blocking edge names the capability or public seam its blocker supplies,
+and implementation reuses or extends that delivered seam before creating a new
+one. This keeps dependent tracer-bullet tickets from building parallel versions
+of the same behavior.
+
 Do not introduce an unlisted product-behavior delta without documenting it here.
 
 ## Source of truth
