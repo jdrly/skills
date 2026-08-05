@@ -18,14 +18,14 @@ Show this to the user, then immediately proceed to Step 2. The user reads and th
 
 ### 2. Spawn sub-agents
 
-First attempt to spawn three independent subagents in parallel. Each must produce a **radically different** interface for the deepened module. If slots are temporarily occupied by other workers, wait for them to free up and retry. The sequential fallback is permitted only when no collaboration/subagent capability is exposed, nesting is denied, or capacity remains unavailable after active workers finish; in that case run three separate non-isolated design passes and state why fallback was used. An optional fourth design may be added when capacity permits.
+Spawn 3+ subagents in parallel. Each must produce a **radically different** interface for the deepened module.
 
-Prompt each subagent with one clean-context text brief (file paths, coupling details, dependency category from [DEEPENING.md](DEEPENING.md), what sits behind the seam). Use one supported text-input field per spawn. Make each brief a leaf design task that asks the worker to design directly without spawning another agent; keep `$codebase-design` and orchestration instructions out of it, and omit platform-specific agent type, model, reasoning-effort, and full-history-fork requests. The brief is independent of the user-facing problem-space explanation in Step 1. Give each agent a different design constraint:
+Prompt each sub-agent with a separate technical brief (file paths, coupling details, dependency category from [DEEPENING.md](DEEPENING.md), what sits behind the seam). The brief is independent of the user-facing problem-space explanation in Step 1. Give each agent a different design constraint:
 
-- Design A: "Minimize the interface — aim for 1–3 entry points max. Maximise leverage per entry point."
-- Design B: "Maximise flexibility — support many use cases and extension."
-- Design C: "Optimise for the most common caller — make the default case trivial."
-- Design D (if applicable): "Design around ports & adapters for cross-seam dependencies."
+- Agent 1: "Minimize the interface — aim for 1–3 entry points max. Maximise leverage per entry point."
+- Agent 2: "Maximise flexibility — support many use cases and extension."
+- Agent 3: "Optimise for the most common caller — make the default case trivial."
+- Agent 4 (if applicable): "Design around ports & adapters for cross-seam dependencies."
 
 Include both [SKILL.md](SKILL.md) vocabulary and CONTEXT.md vocabulary in the brief so each sub-agent names things consistently with the architecture language and the project's domain language.
 
